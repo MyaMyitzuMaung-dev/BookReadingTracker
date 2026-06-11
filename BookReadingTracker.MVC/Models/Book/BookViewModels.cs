@@ -28,15 +28,6 @@ public class BookDetailViewModel
     public bool IsInReadingList { get; set; }
 }
 
-public class CreateBookViewModel
-{
-    public string Title { get; set; } = null!;
-    public string Author { get; set; } = null!;
-    public string? Category { get; set; }
-    public int TotalPages { get; set; }
-    public string? Description { get; set; }
-}
-
 public class EditBookViewModel
 {
     public Guid BookId { get; set; }

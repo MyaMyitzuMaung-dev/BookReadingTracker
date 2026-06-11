@@ -1,18 +1,18 @@
-using BookReadingTracker.MVC.Models.Dashboard;
-using BookReadingTracker.MVC.Services;
+using BookReadingTracker.Domain.Features.Dashboard;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace BookReadingTracker.MVC.Controllers;
 
 [Authorize]
 public class DashboardController : Controller
 {
-    private readonly ApiService _api;
+    private readonly DashboardService _dashboardService;
 
-    public DashboardController(ApiService api)
+    public DashboardController(DashboardService dashboardService)
     {
-        _api = api;
+        _dashboardService = dashboardService;
     }
 
     [HttpGet]
@@ -20,13 +20,14 @@ public class DashboardController : Controller
     {
         try
         {
-            var dashboard = await _api.GetAsync<UserDashboardViewModel>("/api/dashboard/user");
-            return View(dashboard ?? new UserDashboardViewModel());
+            var userId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+            var dashboard = await _dashboardService.GetUserDashboardAsync(userId);
+            return View(dashboard);
         }
         catch (Exception ex)
         {
             TempData["ErrorMessage"] = ex.Message;
-            return View(new UserDashboardViewModel());
+            return View(new GetUserDashboardResponse());
         }
     }
 }

@@ -6,6 +6,10 @@
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\BookReadingTracker.Domain\BookReadingTracker.Domain.csproj" />
+  </ItemGroup>
+
   <Target Name="NpmBuild" BeforeTargets="BeforeBuild">
     <Exec Command="npm install" />
     <Exec Command="npm run build:css" />

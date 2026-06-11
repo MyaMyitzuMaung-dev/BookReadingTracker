@@ -1,5 +1,4 @@
-using BookReadingTracker.MVC.Models.Dashboard;
-using BookReadingTracker.MVC.Services;
+using BookReadingTracker.Domain.Features.Dashboard;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -8,11 +7,11 @@ namespace BookReadingTracker.MVC.Controllers;
 [Authorize(Roles = "Admin")]
 public class AdminController : Controller
 {
-    private readonly ApiService _api;
+    private readonly DashboardService _dashboardService;
 
-    public AdminController(ApiService api)
+    public AdminController(DashboardService dashboardService)
     {
-        _api = api;
+        _dashboardService = dashboardService;
     }
 
     [HttpGet]
@@ -20,13 +19,13 @@ public class AdminController : Controller
     {
         try
         {
-            var data = await _api.GetAsync<AdminDashboardViewModel>("/api/dashboard/admin");
-            return View(data ?? new AdminDashboardViewModel());
+            var data = await _dashboardService.GetAdminDashboardAsync();
+            return View(data);
         }
         catch (Exception ex)
         {
             TempData["ErrorMessage"] = ex.Message;
-            return View(new AdminDashboardViewModel());
+            return View(new GetAdminDashboardResponse());
         }
     }
 }

@@ -1,5 +1,5 @@
+using BookReadingTracker.Domain.Features.Users;
 using BookReadingTracker.MVC.Models.Auth;
-using BookReadingTracker.MVC.Services;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
@@ -10,34 +10,30 @@ namespace BookReadingTracker.MVC.Controllers;
 
 public class AuthController : Controller
 {
-    private readonly ApiService _api;
+    private readonly UserService _userService;
 
-    public AuthController(ApiService api)
+    public AuthController(UserService userService)
     {
-        _api = api;
+        _userService = userService;
     }
 
     [HttpGet]
     public IActionResult Login() => View();
 
     [HttpPost]
-    public async Task<IActionResult> Login(LoginViewModel model)
+    public async Task<IActionResult> Login(LoginRequest model)
     {
         if (!ModelState.IsValid) return View(model);
 
         try
         {
-            var result = await _api.PostPublicAsync<LoginViewModel, LoginResponse>(
-                "/api/auth/login", model);
-
-            if (result is null) throw new Exception("Invalid response from server.");
+            var result = await _userService.LoginAsync(model);
 
             var claims = new List<Claim>
             {
                 new(ClaimTypes.NameIdentifier, result.UserId.ToString()),
                 new(ClaimTypes.Name, result.UserName),
-                new(ClaimTypes.Role, result.Role),
-                new("JwtToken", result.Token)
+                new(ClaimTypes.Role, result.Role)
             };
 
             var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
@@ -46,11 +42,6 @@ public class AuthController : Controller
             await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal);
 
             return RedirectToAction("Index", "Dashboard");
-        }
-        catch (ApiException ex)
-        {
-            ModelState.AddModelError("", ex.Message);
-            return View(model);
         }
         catch (Exception ex)
         {
@@ -63,22 +54,16 @@ public class AuthController : Controller
     public IActionResult Register() => View();
 
     [HttpPost]
-    public async Task<IActionResult> Register(RegisterViewModel model)
+    public async Task<IActionResult> Register(RegisterRequest model)
     {
         if (!ModelState.IsValid) return View(model);
 
         try
         {
-            await _api.PostPublicAsync<RegisterViewModel, AuthResult>(
-                "/api/auth/register", model);
+            await _userService.RegisterAsync(model);
 
             TempData["SuccessMessage"] = "Registration successful. Please login.";
             return RedirectToAction(nameof(Login));
-        }
-        catch (ApiException ex)
-        {
-            ModelState.AddModelError("", ex.Message);
-            return View(model);
         }
         catch (Exception ex)
         {
@@ -107,16 +92,16 @@ public class AuthController : Controller
 
         try
         {
-            await _api.PutAsync<ChangePasswordViewModel, AuthResult>(
-                "/api/auth/change-password", model);
+            var userId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+            var request = new ChangePasswordRequest
+            {
+                OldPassword = model.OldPassword,
+                NewPassword = model.NewPassword
+            };
+            await _userService.ChangePasswordAsync(request, userId);
 
             TempData["SuccessMessage"] = "Password changed successfully.";
             return RedirectToAction("Index", "Dashboard");
-        }
-        catch (ApiException ex)
-        {
-            ModelState.AddModelError("", ex.Message);
-            return View(model);
         }
         catch (Exception ex)
         {

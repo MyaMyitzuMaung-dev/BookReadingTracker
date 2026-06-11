@@ -1,5 +1,6 @@
 ﻿using BookReadingTracker.Database.AppDbContextModels;
 using BookReadingTracker.Domain.Features.Books;
+using BookReadingTracker.Domain.Features.Dashboard;
 using BookReadingTracker.Domain.Features.ReadingLists;
 using BookReadingTracker.Domain.Features.ReadingProgress;
 using BookReadingTracker.Domain.Features.Users;
@@ -20,6 +21,7 @@ namespace BookReadingTracker.Domain
 
             builder.Services.AddScoped<UserService>();
             builder.Services.AddScoped<BookService>();
+            builder.Services.AddScoped<DashboardService>();
             builder.Services.AddScoped<ReadingListService>();
             builder.Services.AddScoped<ReadingProgressService>();
 

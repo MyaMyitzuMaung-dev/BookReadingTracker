@@ -20,8 +20,4 @@ public class ProgressListViewModel
     public string? StatusFilter { get; set; }
 }
 
-public class UpdateProgressViewModel
-{
-    public Guid ProgressId { get; set; }
-    public int CurrentPage { get; set; }
-}
+

@@ -1,18 +1,22 @@
+using BookReadingTracker.Domain.Features.Books;
+using BookReadingTracker.Domain.Features.ReadingLists;
 using BookReadingTracker.MVC.Models.Book;
-using BookReadingTracker.MVC.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace BookReadingTracker.MVC.Controllers;
 
 [Authorize]
 public class BookController : Controller
 {
-    private readonly ApiService _api;
+    private readonly BookService _bookService;
+    private readonly ReadingListService _readingListService;
 
-    public BookController(ApiService api)
+    public BookController(BookService bookService, ReadingListService readingListService)
     {
-        _api = api;
+        _bookService = bookService;
+        _readingListService = readingListService;
     }
 
     [HttpGet]
@@ -20,18 +24,25 @@ public class BookController : Controller
     {
         try
         {
-            var query = new List<string>();
-            if (!string.IsNullOrWhiteSpace(search)) query.Add($"search={Uri.EscapeDataString(search)}");
-            if (!string.IsNullOrWhiteSpace(category)) query.Add($"category={Uri.EscapeDataString(category)}");
+            var request = new GetBooksRequest { Search = search, Category = category };
+            var response = await _bookService.GetBooksAsync(request);
 
-            var url = "/api/books" + (query.Count > 0 ? "?" + string.Join("&", query) : "");
-            var result = await _api.GetAsync<BookListViewModel>(url);
+            var vm = new BookListViewModel
+            {
+                Books = response.Books.Select(b => new BookItemViewModel
+                {
+                    BookId = b.BookId,
+                    Title = b.Title,
+                    Author = b.Author,
+                    Category = b.Category,
+                    TotalPages = b.TotalPages,
+                    Description = b.Description
+                }).ToList(),
+                Search = search,
+                Category = category
+            };
 
-            result ??= new BookListViewModel();
-            result.Search = search;
-            result.Category = category;
-
-            return View(result);
+            return View(vm);
         }
         catch (Exception ex)
         {
@@ -45,9 +56,19 @@ public class BookController : Controller
     {
         try
         {
-            var book = await _api.GetAsync<BookDetailViewModel>($"/api/books/{id}");
-            if (book is null) return NotFound();
-            return View(book);
+            var book = await _bookService.GetBookDetailAsync(id);
+
+            var vm = new BookDetailViewModel
+            {
+                BookId = book.BookId,
+                Title = book.Title,
+                Author = book.Author,
+                Category = book.Category,
+                TotalPages = book.TotalPages,
+                Description = book.Description
+            };
+
+            return View(vm);
         }
         catch (Exception ex)
         {
@@ -62,17 +83,18 @@ public class BookController : Controller
 
     [HttpPost]
     [Authorize(Roles = "Admin")]
-    public async Task<IActionResult> Create(CreateBookViewModel model)
+    public async Task<IActionResult> Create(AddBookRequest model)
     {
         if (!ModelState.IsValid) return View(model);
 
         try
         {
-            await _api.PostAsync<CreateBookViewModel, BookDetailViewModel>("/api/books", model);
+            var userId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+            await _bookService.AddBookAsync(model, userId);
             TempData["SuccessMessage"] = "Book created successfully.";
             return RedirectToAction(nameof(Index));
         }
-        catch (ApiException ex)
+        catch (Exception ex)
         {
             ModelState.AddModelError("", ex.Message);
             return View(model);
@@ -85,9 +107,17 @@ public class BookController : Controller
     {
         try
         {
-            var book = await _api.GetAsync<EditBookViewModel>($"/api/books/{id}");
-            if (book is null) return NotFound();
-            return View(book);
+            var book = await _bookService.GetBookDetailAsync(id);
+            var vm = new EditBookViewModel
+            {
+                BookId = book.BookId,
+                Title = book.Title,
+                Author = book.Author,
+                Category = book.Category,
+                TotalPages = book.TotalPages,
+                Description = book.Description
+            };
+            return View(vm);
         }
         catch (Exception ex)
         {
@@ -104,11 +134,20 @@ public class BookController : Controller
 
         try
         {
-            await _api.PutAsync<EditBookViewModel, BookDetailViewModel>($"/api/books/{id}", model);
+            var userId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+            var request = new EditBookRequest
+            {
+                Title = model.Title,
+                Author = model.Author,
+                Category = model.Category,
+                TotalPages = model.TotalPages,
+                Description = model.Description
+            };
+            await _bookService.EditBookAsync(id, request, userId);
             TempData["SuccessMessage"] = "Book updated successfully.";
             return RedirectToAction(nameof(Index));
         }
-        catch (ApiException ex)
+        catch (Exception ex)
         {
             ModelState.AddModelError("", ex.Message);
             return View(model);
@@ -121,7 +160,7 @@ public class BookController : Controller
     {
         try
         {
-            await _api.DeleteAsync<BookDetailViewModel>($"/api/books/{id}");
+            await _bookService.DeleteBookAsync(id);
             TempData["SuccessMessage"] = "Book deleted successfully.";
         }
         catch (Exception ex)
@@ -136,7 +175,8 @@ public class BookController : Controller
     {
         try
         {
-            await _api.PostAsync<object, object>("/api/reading-list", new { bookId });
+            var userId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+            await _readingListService.AddToReadingListAsync(new AddToReadingListRequest { BookId = bookId }, userId);
             TempData["SuccessMessage"] = "Book added to your reading list.";
         }
         catch (Exception ex)

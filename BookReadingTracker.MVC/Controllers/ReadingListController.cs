@@ -1,18 +1,18 @@
-using BookReadingTracker.MVC.Models.ReadingList;
-using BookReadingTracker.MVC.Services;
+using BookReadingTracker.Domain.Features.ReadingLists;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace BookReadingTracker.MVC.Controllers;
 
 [Authorize]
 public class ReadingListController : Controller
 {
-    private readonly ApiService _api;
+    private readonly ReadingListService _readingListService;
 
-    public ReadingListController(ApiService api)
+    public ReadingListController(ReadingListService readingListService)
     {
-        _api = api;
+        _readingListService = readingListService;
     }
 
     [HttpGet]
@@ -20,13 +20,14 @@ public class ReadingListController : Controller
     {
         try
         {
-            var list = await _api.GetAsync<ReadingListViewModel>("/api/reading-list");
-            return View(list ?? new ReadingListViewModel());
+            var userId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+            var list = await _readingListService.GetMyReadingListAsync(userId);
+            return View(list);
         }
         catch (Exception ex)
         {
             TempData["ErrorMessage"] = ex.Message;
-            return View(new ReadingListViewModel());
+            return View(new GetMyReadingListResponse());
         }
     }
 
@@ -35,7 +36,8 @@ public class ReadingListController : Controller
     {
         try
         {
-            await _api.DeleteAsync<ReadingListItemViewModel>($"/api/reading-list/{id}");
+            var userId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+            await _readingListService.RemoveFromReadingListAsync(id, userId);
             TempData["SuccessMessage"] = "Book removed from reading list.";
         }
         catch (Exception ex)

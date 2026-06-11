@@ -1,18 +1,19 @@
+using BookReadingTracker.Domain.Features.ReadingProgress;
 using BookReadingTracker.MVC.Models.ReadingProgress;
-using BookReadingTracker.MVC.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace BookReadingTracker.MVC.Controllers;
 
 [Authorize]
 public class ReadingProgressController : Controller
 {
-    private readonly ApiService _api;
+    private readonly ReadingProgressService _readingProgressService;
 
-    public ReadingProgressController(ApiService api)
+    public ReadingProgressController(ReadingProgressService readingProgressService)
     {
-        _api = api;
+        _readingProgressService = readingProgressService;
     }
 
     [HttpGet]
@@ -20,13 +21,28 @@ public class ReadingProgressController : Controller
     {
         try
         {
-            var url = "/api/reading-progress" + (!string.IsNullOrWhiteSpace(status)
-                ? $"?status={Uri.EscapeDataString(status)}" : "");
+            var userId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+            var data = await _readingProgressService.GetMyProgressAsync(userId, status);
 
-            var result = await _api.GetAsync<ProgressListViewModel>(url);
-            result ??= new ProgressListViewModel();
-            result.StatusFilter = status;
-            return View(result);
+            var vm = new ProgressListViewModel
+            {
+                Items = data.Items.Select(i => new ProgressItemViewModel
+                {
+                    ReadingProgressId = i.ReadingProgressId,
+                    BookId = i.BookId,
+                    Title = i.Title,
+                    Author = i.Author,
+                    CurrentPage = i.CurrentPage,
+                    TotalPages = i.TotalPages,
+                    ProgressPercent = i.ProgressPercent,
+                    Status = i.Status,
+                    StartedDate = i.StartedDate,
+                    CompletedDate = i.CompletedDate
+                }).ToList(),
+                StatusFilter = status
+            };
+
+            return View(vm);
         }
         catch (Exception ex)
         {
@@ -36,7 +52,7 @@ public class ReadingProgressController : Controller
     }
 
     [HttpPost]
-    public async Task<IActionResult> Update(Guid id, UpdateProgressViewModel model)
+    public async Task<IActionResult> Update(Guid id, UpdateProgressRequest model)
     {
         if (!ModelState.IsValid)
         {
@@ -46,8 +62,8 @@ public class ReadingProgressController : Controller
 
         try
         {
-            await _api.PutAsync<UpdateProgressViewModel, ProgressItemViewModel>(
-                $"/api/reading-progress/{id}", model);
+            var userId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+            await _readingProgressService.UpdateProgressAsync(id, model, userId);
             TempData["SuccessMessage"] = "Progress updated.";
         }
         catch (Exception ex)
