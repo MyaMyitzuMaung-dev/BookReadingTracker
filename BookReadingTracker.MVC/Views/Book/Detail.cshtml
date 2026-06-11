@@ -1,0 +1,65 @@
+@model BookDetailViewModel
+@{
+    ViewData["Title"] = Model.Title;
+}
+
+<div class="max-w-2xl mx-auto space-y-6">
+    <a asp-action="Index" class="inline-flex items-center text-sm text-muted-foreground hover:text-foreground">
+        &larr; Back to Books
+    </a>
+
+    <div class="rounded-lg border bg-card text-card-foreground shadow-sm">
+        <div class="p-6 space-y-4">
+            <h1 class="text-3xl font-bold tracking-tight">@Model.Title</h1>
+            <p class="text-lg text-muted-foreground">by @Model.Author</p>
+
+            <div class="flex flex-wrap gap-4 text-sm">
+                @if (!string.IsNullOrEmpty(Model.Category))
+                {
+                    <div>
+                        <span class="text-muted-foreground">Category:</span>
+                        <span class="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-medium ml-1">@Model.Category</span>
+                    </div>
+                }
+                <div>
+                    <span class="text-muted-foreground">Pages:</span>
+                    <span class="font-medium ml-1">@Model.TotalPages</span>
+                </div>
+            </div>
+
+            @if (!string.IsNullOrEmpty(Model.Description))
+            {
+                <div class="pt-4 border-t">
+                    <h3 class="font-semibold mb-2">Description</h3>
+                    <p class="text-sm text-muted-foreground">@Model.Description</p>
+                </div>
+            }
+
+            <div class="flex gap-3 pt-4 border-t">
+                @if (User.Identity?.IsAuthenticated == true)
+                {
+                    <form asp-action="AddToReadingList" asp-route-bookId="@Model.BookId" method="post">
+                        <button type="submit"
+                                class="inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors h-10 px-4 bg-primary text-primary-foreground hover:bg-primary/90">
+                            Add to Reading List
+                        </button>
+                    </form>
+                }
+                @if (User.IsInRole("Admin"))
+                {
+                    <a asp-action="Edit" asp-route-id="@Model.BookId"
+                       class="inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors h-10 px-4 border hover:bg-accent">
+                        Edit
+                    </a>
+                    <form asp-action="Delete" asp-route-id="@Model.BookId" method="post"
+                          onsubmit="return confirm('Delete this book?')">
+                        <button type="submit"
+                                class="inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors h-10 px-4 border border-red-200 text-red-600 hover:bg-red-50">
+                            Delete
+                        </button>
+                    </form>
+                }
+            </div>
+        </div>
+    </div>
+</div>

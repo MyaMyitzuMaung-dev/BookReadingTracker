@@ -1,0 +1,84 @@
+@model ReadingListViewModel
+@{
+    ViewData["Title"] = "My Reading List";
+}
+
+<div class="space-y-6">
+    <h1 class="text-3xl font-bold tracking-tight">My Reading List</h1>
+
+    @if (!Model.Items.Any())
+    {
+        <div class="rounded-lg border bg-card p-12 text-center">
+            <p class="text-muted-foreground mb-4">Your reading list is empty.</p>
+            <a asp-controller="Book" asp-action="Index"
+               class="inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors h-10 px-4 bg-primary text-primary-foreground hover:bg-primary/90">
+                Browse Books
+            </a>
+        </div>
+    }
+    else
+    {
+        <div class="rounded-lg border bg-card">
+            <div class="overflow-x-auto">
+                <table class="w-full">
+                    <thead>
+                        <tr class="border-b bg-muted/50">
+                            <th class="px-4 py-3 text-left text-sm font-medium">Title</th>
+                            <th class="px-4 py-3 text-left text-sm font-medium">Author</th>
+                            <th class="px-4 py-3 text-center text-sm font-medium">Status</th>
+                            <th class="px-4 py-3 text-right text-sm font-medium">Progress</th>
+                            <th class="px-4 py-3 text-right text-sm font-medium">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model.Items)
+                        {
+                            <tr class="border-b last:border-0 hover:bg-muted/50 transition-colors">
+                                <td class="px-4 py-3 text-sm font-medium">
+                                    <a asp-controller="Book" asp-action="Detail" asp-route-id="@item.BookId" class="hover:underline">@item.Title</a>
+                                </td>
+                                <td class="px-4 py-3 text-sm text-muted-foreground">@item.Author</td>
+                                <td class="px-4 py-3 text-center">
+                                    @{
+                                        var statusColor = item.Status switch
+                                        {
+                                            "Completed" => "bg-green-50 text-green-700 border-green-200",
+                                            "Reading" => "bg-blue-50 text-blue-700 border-blue-200",
+                                            _ => "bg-gray-50 text-gray-700 border-gray-200"
+                                        };
+                                    }
+                                    <span class="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-medium @statusColor">
+                                        @item.Status
+                                    </span>
+                                </td>
+                                <td class="px-4 py-3">
+                                    <div class="flex items-center justify-end gap-2">
+                                        <span class="text-sm text-muted-foreground">@item.ProgressPercent%</span>
+                                        <div class="w-20 h-2 rounded-full bg-muted overflow-hidden">
+                                            <div class="h-full rounded-full @(item.Status == "Completed" ? "bg-green-500" : "bg-blue-500")" style="width: @item.ProgressPercent%"></div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="px-4 py-3 text-right">
+                                    <div class="flex justify-end gap-2">
+                                        <a asp-controller="ReadingProgress" asp-action="Index"
+                                           class="inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors h-8 px-3 border hover:bg-accent">
+                                            Update
+                                        </a>
+                                        <form asp-action="Remove" asp-route-id="@item.ReadingListId" method="post"
+                                              onsubmit="return confirm('Remove from reading list?')">
+                                            <button type="submit"
+                                                    class="inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors h-8 px-3 border border-red-200 text-red-600 hover:bg-red-50">
+                                                Remove
+                                            </button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    }
+</div>

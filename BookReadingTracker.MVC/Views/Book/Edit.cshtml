@@ -1,0 +1,60 @@
+@model EditBookViewModel
+@{
+    ViewData["Title"] = "Edit Book";
+}
+
+<div class="max-w-lg mx-auto">
+    <div class="rounded-lg border bg-card text-card-foreground shadow-sm">
+        <div class="p-6 space-y-1">
+            <h2 class="text-2xl font-semibold">Edit Book</h2>
+            <p class="text-sm text-muted-foreground">Update the book details</p>
+        </div>
+        <div class="p-6 pt-0">
+            <form asp-action="Edit" asp-route-id="@Model.BookId" method="post" class="space-y-4">
+                <div class="space-y-2">
+                    <label asp-for="Title" class="text-sm font-medium">Title</label>
+                    <input asp-for="Title" class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring" />
+                    <span asp-validation-for="Title" class="text-xs text-destructive"></span>
+                </div>
+                <div class="space-y-2">
+                    <label asp-for="Author" class="text-sm font-medium">Author</label>
+                    <input asp-for="Author" class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring" />
+                    <span asp-validation-for="Author" class="text-xs text-destructive"></span>
+                </div>
+                <div class="space-y-2">
+                    <label asp-for="Category" class="text-sm font-medium">Category</label>
+                    <input asp-for="Category" class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring" />
+                </div>
+                <div class="space-y-2">
+                    <label asp-for="TotalPages" class="text-sm font-medium">Total Pages</label>
+                    <input asp-for="TotalPages" type="number" class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring" />
+                    <span asp-validation-for="TotalPages" class="text-xs text-destructive"></span>
+                </div>
+                <div class="space-y-2">
+                    <label asp-for="Description" class="text-sm font-medium">Description</label>
+                    <textarea asp-for="Description" rows="4" class="flex w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"></textarea>
+                </div>
+                @if (!ViewData.ModelState.IsValid)
+                {
+                    <div class="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-800">
+                        @Html.ValidationSummary(true, "", new { @class = "text-sm" })
+                    </div>
+                }
+                <div class="flex gap-3 pt-2">
+                    <button type="submit"
+                            class="inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors h-10 px-4 bg-primary text-primary-foreground hover:bg-primary/90">
+                        Update
+                    </button>
+                    <a asp-action="Index"
+                       class="inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors h-10 px-4 border hover:bg-accent">
+                        Cancel
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

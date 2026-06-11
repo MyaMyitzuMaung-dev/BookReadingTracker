@@ -3,46 +3,105 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - BookReadingTracker.MVC</title>
-    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <title>@ViewData["Title"] - Book Reading Tracker</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="~/css/tailwind.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/BookReadingTracker.MVC.styles.css" asp-append-version="true" />
 </head>
-<body>
-    <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
-            <div class="container-fluid">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">BookReadingTracker.MVC</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                        aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav flex-grow-1">
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-                        </li>
-                    </ul>
-                </div>
+<body class="min-h-screen bg-background antialiased">
+    <header class="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+        <div class="container mx-auto flex h-16 items-center justify-between px-4">
+            <div class="flex items-center gap-6">
+                <a asp-controller="Home" asp-action="Index" class="flex items-center gap-2 font-semibold text-lg">
+                    <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                    </svg>
+                    BookTracker
+                </a>
+                @if (User.Identity?.IsAuthenticated == true)
+                {
+                    <nav class="hidden md:flex items-center gap-1">
+                        <a asp-controller="Book" asp-action="Index" class="inline-flex items-center px-3 py-2 text-sm font-medium rounded-md hover:bg-accent transition-colors">
+                            Books
+                        </a>
+                        <a asp-controller="ReadingList" asp-action="Index" class="inline-flex items-center px-3 py-2 text-sm font-medium rounded-md hover:bg-accent transition-colors">
+                            My Reading List
+                        </a>
+                        <a asp-controller="ReadingProgress" asp-action="Index" class="inline-flex items-center px-3 py-2 text-sm font-medium rounded-md hover:bg-accent transition-colors">
+                            Progress
+                        </a>
+                        <a asp-controller="Dashboard" asp-action="Index" class="inline-flex items-center px-3 py-2 text-sm font-medium rounded-md hover:bg-accent transition-colors">
+                            Dashboard
+                        </a>
+                        @if (User.IsInRole("Admin"))
+                        {
+                            <a asp-controller="Admin" asp-action="Dashboard" class="inline-flex items-center px-3 py-2 text-sm font-medium rounded-md hover:bg-accent transition-colors">
+                                Admin
+                            </a>
+                        }
+                    </nav>
+                }
             </div>
-        </nav>
+            <div class="flex items-center gap-3">
+                @if (User.Identity?.IsAuthenticated == true)
+                {
+                    <span class="text-sm text-muted-foreground hidden sm:inline">
+                        @User.Identity.Name
+                        @if (User.IsInRole("Admin"))
+                        {
+                            <span class="ml-1 inline-flex items-center rounded-full bg-primary/10 px-2 py-0.5 text-xs font-medium text-primary">Admin</span>
+                        }
+                    </span>
+                    <a asp-controller="Auth" asp-action="ChangePassword"
+                       class="inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors h-9 px-3 border hover:bg-accent">
+                        Change Password
+                    </a>
+                    <form asp-controller="Auth" asp-action="Logout" method="post" class="inline">
+                        <button type="submit"
+                                class="inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors h-9 px-3 border hover:bg-accent">
+                            Logout
+                        </button>
+                    </form>
+                }
+                else
+                {
+                    <a asp-controller="Auth" asp-action="Login"
+                       class="inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors h-9 px-4 border hover:bg-accent">
+                        Login
+                    </a>
+                    <a asp-controller="Auth" asp-action="Register"
+                       class="inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors h-9 px-4 bg-primary text-primary-foreground hover:bg-primary/90">
+                        Register
+                    </a>
+                }
+            </div>
+        </div>
     </header>
-    <div class="container">
-        <main role="main" class="pb-3">
-            @RenderBody()
-        </main>
-    </div>
 
-    <footer class="border-top footer text-muted">
-        <div class="container">
-            &copy; 2026 - BookReadingTracker.MVC - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+    <main class="container mx-auto px-4 py-6">
+        @if (TempData["SuccessMessage"] is string successMsg)
+        {
+            <div class="mb-6 rounded-lg border border-green-200 bg-green-50 p-4 text-sm text-green-800">
+                @successMsg
+            </div>
+        }
+        @if (TempData["ErrorMessage"] is string errorMsg)
+        {
+            <div class="mb-6 rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-800">
+                @errorMsg
+            </div>
+        }
+        @RenderBody()
+    </main>
+
+    <footer class="border-t py-6 text-center text-sm text-muted-foreground">
+        <div class="container mx-auto px-4">
+            &copy; @DateTime.Now.Year Book Reading Tracker. All rights reserved.
         </div>
     </footer>
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
-    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>

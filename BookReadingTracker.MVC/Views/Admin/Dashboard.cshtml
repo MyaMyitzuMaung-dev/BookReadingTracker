@@ -1,0 +1,43 @@
+@model AdminDashboardViewModel
+@{
+    ViewData["Title"] = "Admin Dashboard";
+}
+
+<div class="space-y-6">
+    <div class="flex items-center justify-between">
+        <h1 class="text-3xl font-bold tracking-tight">Admin Dashboard</h1>
+        <a asp-controller="Book" asp-action="Create"
+           class="inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors h-10 px-4 bg-primary text-primary-foreground hover:bg-primary/90">
+            Add Book
+        </a>
+    </div>
+
+    <div class="grid gap-4 sm:grid-cols-3">
+        <div class="rounded-lg border bg-card text-card-foreground shadow-sm p-6">
+            <p class="text-sm text-muted-foreground mb-1">Total Users</p>
+            <p class="text-3xl font-bold">@Model.TotalUsers</p>
+        </div>
+        <div class="rounded-lg border bg-card text-card-foreground shadow-sm p-6">
+            <p class="text-sm text-muted-foreground mb-1">Total Books</p>
+            <p class="text-3xl font-bold">@Model.TotalBooks</p>
+        </div>
+        <div class="rounded-lg border bg-card text-card-foreground shadow-sm p-6">
+            <p class="text-sm text-muted-foreground mb-1">Completed Readings</p>
+            <p class="text-3xl font-bold">@Model.TotalCompletedReadings</p>
+        </div>
+    </div>
+
+    <div class="rounded-lg border bg-card shadow-sm p-6">
+        <h2 class="font-semibold mb-4">Quick Actions</h2>
+        <div class="flex flex-wrap gap-3">
+            <a asp-controller="Book" asp-action="Create"
+               class="inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors h-10 px-4 border hover:bg-accent">
+                Add New Book
+            </a>
+            <a asp-controller="Book" asp-action="Index"
+               class="inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors h-10 px-4 border hover:bg-accent">
+                Manage Books
+            </a>
+        </div>
+    </div>
+</div>

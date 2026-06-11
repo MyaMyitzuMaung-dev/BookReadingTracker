@@ -1,8 +1,71 @@
 ﻿@{
-    ViewData["Title"] = "Home Page";
+    ViewData["Title"] = "Home";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<div class="flex flex-col items-center justify-center py-16 text-center">
+    <div class="rounded-full bg-primary/10 p-4 mb-6">
+        <svg class="h-12 w-12 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+        </svg>
+    </div>
+    <h1 class="text-4xl font-bold tracking-tight sm:text-5xl mb-4">Book Reading Tracker</h1>
+    <p class="text-lg text-muted-foreground max-w-2xl mb-8">
+        Track your reading journey. Add books, monitor progress, and achieve your reading goals.
+    </p>
+    @if (!User.Identity?.IsAuthenticated == true)
+    {
+        <div class="flex gap-4">
+            <a asp-controller="Auth" asp-action="Register"
+               class="inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors h-10 px-6 bg-primary text-primary-foreground hover:bg-primary/90">
+                Get Started
+            </a>
+            <a asp-controller="Auth" asp-action="Login"
+               class="inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors h-10 px-6 border hover:bg-accent">
+                Sign In
+            </a>
+        </div>
+    }
+    else
+    {
+        <div class="flex gap-4">
+            <a asp-controller="Book" asp-action="Index"
+               class="inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors h-10 px-6 bg-primary text-primary-foreground hover:bg-primary/90">
+                Browse Books
+            </a>
+            <a asp-controller="Dashboard" asp-action="Index"
+               class="inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors h-10 px-6 border hover:bg-accent">
+                My Dashboard
+            </a>
+        </div>
+    }
+</div>
+
+<div class="grid gap-6 sm:grid-cols-3 py-12 max-w-4xl mx-auto">
+    <div class="rounded-lg border bg-card text-card-foreground p-6">
+        <div class="flex items-center gap-2 mb-3">
+            <svg class="h-5 w-5 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0z" />
+            </svg>
+            <h3 class="font-semibold">Track Progress</h3>
+        </div>
+        <p class="text-sm text-muted-foreground">Update your current page and watch your reading progress grow.</p>
+    </div>
+    <div class="rounded-lg border bg-card text-card-foreground p-6">
+        <div class="flex items-center gap-2 mb-3">
+            <svg class="h-5 w-5 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            </svg>
+            <h3 class="font-semibold">Manage Books</h3>
+        </div>
+        <p class="text-sm text-muted-foreground">Browse, search, and organize your personal reading list.</p>
+    </div>
+    <div class="rounded-lg border bg-card text-card-foreground p-6">
+        <div class="flex items-center gap-2 mb-3">
+            <svg class="h-5 w-5 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+            </svg>
+            <h3 class="font-semibold">View Insights</h3>
+        </div>
+        <p class="text-sm text-muted-foreground">Get detailed analytics on your reading habits and achievements.</p>
+    </div>
 </div>

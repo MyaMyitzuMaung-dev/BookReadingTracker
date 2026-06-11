@@ -1,0 +1,95 @@
+@model BookListViewModel
+@{
+    ViewData["Title"] = "Books";
+}
+
+<div class="space-y-6">
+    <div class="flex items-center justify-between">
+        <h1 class="text-3xl font-bold tracking-tight">Books</h1>
+        @if (User.IsInRole("Admin"))
+        {
+            <a asp-action="Create"
+               class="inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors h-10 px-4 bg-primary text-primary-foreground hover:bg-primary/90">
+                Add Book
+            </a>
+        }
+    </div>
+
+    <form method="get" asp-action="Index" class="flex gap-3">
+        <div class="flex-1">
+            <input type="text" name="search" value="@Model.Search" placeholder="Search by title..."
+                   class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring" />
+        </div>
+        <div class="w-48">
+            <input type="text" name="category" value="@Model.Category" placeholder="Filter by category..."
+                   class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring" />
+        </div>
+        <button type="submit"
+                class="inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors h-10 px-4 border hover:bg-accent">
+            Search
+        </button>
+    </form>
+
+    @if (!Model.Books.Any())
+    {
+        <div class="rounded-lg border bg-card p-12 text-center">
+            <p class="text-muted-foreground">No books found.</p>
+        </div>
+    }
+    else
+    {
+        <div class="rounded-lg border bg-card">
+            <div class="overflow-x-auto">
+                <table class="w-full">
+                    <thead>
+                        <tr class="border-b bg-muted/50">
+                            <th class="px-4 py-3 text-left text-sm font-medium">Title</th>
+                            <th class="px-4 py-3 text-left text-sm font-medium">Author</th>
+                            <th class="px-4 py-3 text-left text-sm font-medium">Category</th>
+                            <th class="px-4 py-3 text-right text-sm font-medium">Pages</th>
+                            <th class="px-4 py-3 text-right text-sm font-medium">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var book in Model.Books)
+                        {
+                            <tr class="border-b last:border-0 hover:bg-muted/50 transition-colors">
+                                <td class="px-4 py-3 text-sm font-medium">@book.Title</td>
+                                <td class="px-4 py-3 text-sm text-muted-foreground">@book.Author</td>
+                                <td class="px-4 py-3 text-sm">
+                                    @if (!string.IsNullOrEmpty(book.Category))
+                                    {
+                                        <span class="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-medium">@book.Category</span>
+                                    }
+                                </td>
+                                <td class="px-4 py-3 text-sm text-right">@book.TotalPages</td>
+                                <td class="px-4 py-3 text-right">
+                                    <div class="flex justify-end gap-2">
+                                        <a asp-action="Detail" asp-route-id="@book.BookId"
+                                           class="inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors h-8 px-3 border hover:bg-accent">
+                                            View
+                                        </a>
+                                        @if (User.IsInRole("Admin"))
+                                        {
+                                            <a asp-action="Edit" asp-route-id="@book.BookId"
+                                               class="inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors h-8 px-3 border hover:bg-accent">
+                                                Edit
+                                            </a>
+                                            <form asp-action="Delete" asp-route-id="@book.BookId" method="post" class="inline"
+                                                  onsubmit="return confirm('Delete this book?')">
+                                                <button type="submit"
+                                                        class="inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors h-8 px-3 border border-red-200 text-red-600 hover:bg-red-50">
+                                                    Delete
+                                                </button>
+                                            </form>
+                                        }
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    }
+</div>

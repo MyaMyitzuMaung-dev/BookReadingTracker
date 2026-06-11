@@ -1,0 +1,51 @@
+@model RegisterViewModel
+@{
+    ViewData["Title"] = "Register";
+}
+
+<div class="flex items-center justify-center py-12">
+    <div class="w-full max-w-md">
+        <div class="rounded-lg border bg-card text-card-foreground shadow-sm">
+            <div class="p-6 space-y-1">
+                <h2 class="text-2xl font-semibold text-center">Create an account</h2>
+                <p class="text-sm text-muted-foreground text-center">Enter your information to get started</p>
+            </div>
+            <div class="p-6 pt-0">
+                <form asp-action="Register" method="post" class="space-y-4">
+                    <div class="space-y-2">
+                        <label asp-for="UserName" class="text-sm font-medium">Username</label>
+                        <input asp-for="UserName" class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring" placeholder="John Doe" />
+                        <span asp-validation-for="UserName" class="text-xs text-destructive"></span>
+                    </div>
+                    <div class="space-y-2">
+                        <label asp-for="Email" class="text-sm font-medium">Email</label>
+                        <input asp-for="Email" type="email" class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring" placeholder="name@example.com" />
+                        <span asp-validation-for="Email" class="text-xs text-destructive"></span>
+                    </div>
+                    <div class="space-y-2">
+                        <label asp-for="Password" class="text-sm font-medium">Password</label>
+                        <input asp-for="Password" type="password" class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring" placeholder="Enter your password" />
+                        <span asp-validation-for="Password" class="text-xs text-destructive"></span>
+                    </div>
+                    @if (!ViewData.ModelState.IsValid)
+                    {
+                        <div class="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-800">
+                            @Html.ValidationSummary(true, "", new { @class = "text-sm" })
+                        </div>
+                    }
+                    <button type="submit" class="w-full inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors h-10 px-4 bg-primary text-primary-foreground hover:bg-primary/90">
+                        Create Account
+                    </button>
+                </form>
+                <div class="mt-4 text-center text-sm text-muted-foreground">
+                    Already have an account?
+                    <a asp-action="Login" class="font-medium text-primary hover:underline">Sign in</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
