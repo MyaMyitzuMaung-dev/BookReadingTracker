@@ -26,15 +26,18 @@
                         <a asp-controller="Book" asp-action="Index" class="inline-flex items-center px-3 py-2 text-sm font-medium rounded-md hover:bg-accent transition-colors">
                             Books
                         </a>
-                        <a asp-controller="ReadingList" asp-action="Index" class="inline-flex items-center px-3 py-2 text-sm font-medium rounded-md hover:bg-accent transition-colors">
-                            My Reading List
-                        </a>
-                        <a asp-controller="ReadingProgress" asp-action="Index" class="inline-flex items-center px-3 py-2 text-sm font-medium rounded-md hover:bg-accent transition-colors">
-                            Progress
-                        </a>
-                        <a asp-controller="Dashboard" asp-action="Index" class="inline-flex items-center px-3 py-2 text-sm font-medium rounded-md hover:bg-accent transition-colors">
-                            Dashboard
-                        </a>
+                        @if (!User.IsInRole("Admin"))
+                        {
+                            <a asp-controller="ReadingList" asp-action="Index" class="inline-flex items-center px-3 py-2 text-sm font-medium rounded-md hover:bg-accent transition-colors">
+                                My Reading List
+                            </a>
+                            <a asp-controller="ReadingProgress" asp-action="Index" class="inline-flex items-center px-3 py-2 text-sm font-medium rounded-md hover:bg-accent transition-colors">
+                                Progress
+                            </a>
+                            <a asp-controller="Dashboard" asp-action="Index" class="inline-flex items-center px-3 py-2 text-sm font-medium rounded-md hover:bg-accent transition-colors">
+                                Dashboard
+                            </a>
+                        }
                         @if (User.IsInRole("Admin"))
                         {
                             <a asp-controller="Admin" asp-action="Dashboard" class="inline-flex items-center px-3 py-2 text-sm font-medium rounded-md hover:bg-accent transition-colors">

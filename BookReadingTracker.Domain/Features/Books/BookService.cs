@@ -23,7 +23,7 @@ public class BookService
             query = query.Where(b => b.Category == request.Category);
 
         var books = await query
-            .OrderBy(b => b.Title)
+            .OrderByDescending(b => b.CreatedDate)
             .Select(b => new BookItem
             {
                 BookId = b.BookId,
