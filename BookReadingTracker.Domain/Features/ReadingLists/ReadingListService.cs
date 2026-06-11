@@ -36,7 +36,7 @@ public class ReadingListService
                     Author = x.b.Author,
                     TotalPages = x.b.TotalPages,
                     AddedDate = x.rl.AddedDate,
-                    Status = rp != null ? rp.Status : "NotStarted",
+                    Status = rp != null ? rp.Status : "Not Started",
                     ProgressPercent = rp != null && x.b.TotalPages > 0
                         ? Math.Round((decimal)rp.CurrentPage / x.b.TotalPages * 100, 2)
                         : 0
@@ -49,10 +49,10 @@ public class ReadingListService
 
     public async Task<AddToReadingListResponse> AddToReadingListAsync(AddToReadingListRequest request, Guid userId)
     {
-        var book = await _db.Books
-            .FirstOrDefaultAsync(b => b.BookId == request.BookId && !b.IsDeleted);
+        var bookExists = await _db.Books
+            .AnyAsync(b => b.BookId == request.BookId && !b.IsDeleted);
 
-        if (book is null)
+        if (!bookExists)
             throw new Exception("Book not found.");
 
         var alreadyAdded = await _db.ReadingLists
@@ -74,20 +74,37 @@ public class ReadingListService
             IsDeleted = false
         };
 
-        var readingProgress = new DbReadingProgress
-        {
-            ReadingProgressId = Guid.NewGuid(),
-            UserId = userId,
-            BookId = request.BookId,
-            CurrentPage = 0,
-            Status = "NotStarted",
-            CreatedBy = userId,
-            CreatedDate = DateTime.Now,
-            IsDeleted = false
-        };
-
         _db.ReadingLists.Add(readingList);
-        _db.ReadingProgresses.Add(readingProgress);
+
+        var existingProgress = await _db.ReadingProgresses
+            .FirstOrDefaultAsync(rp => rp.UserId == userId && rp.BookId == request.BookId);
+
+        if (existingProgress is not null)
+        {
+            existingProgress.IsDeleted = false;
+            existingProgress.CurrentPage = 0;
+            existingProgress.Status = "Not Started";
+            existingProgress.StartedDate = null;
+            existingProgress.CompletedDate = null;
+            existingProgress.ModifiedBy = userId;
+            existingProgress.ModifiedDate = DateTime.Now;
+        }
+        else
+        {
+            var readingProgress = new DbReadingProgress
+            {
+                ReadingProgressId = Guid.NewGuid(),
+                UserId = userId,
+                BookId = request.BookId,
+                CurrentPage = 0,
+                Status = "Not Started",
+                CreatedBy = userId,
+                CreatedDate = DateTime.Now,
+                IsDeleted = false
+            };
+            _db.ReadingProgresses.Add(readingProgress);
+        }
+
         await _db.SaveChangesAsync();
 
         return new AddToReadingListResponse

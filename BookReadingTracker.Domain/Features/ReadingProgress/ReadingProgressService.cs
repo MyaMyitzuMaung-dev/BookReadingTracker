@@ -78,7 +78,7 @@ public class ReadingProgressService
         }
         else
         {
-            progress.Status = "NotStarted";
+            progress.Status = "Not Started";
         }
 
         await _db.SaveChangesAsync();

@@ -22,7 +22,7 @@ public class DashboardService
         var totalBooksAdded = progresses.Count;
         var currentlyReading = progresses.Count(rp => rp.Status == "Reading");
         var completedBooks = progresses.Count(rp => rp.Status == "Completed");
-        var notStarted = progresses.Count(rp => rp.Status == "NotStarted");
+        var notStarted = progresses.Count(rp => rp.Status == "Not Started");
 
         decimal overallPercent = 0;
         if (totalBooksAdded > 0)

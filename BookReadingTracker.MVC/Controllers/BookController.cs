@@ -46,7 +46,8 @@ public class BookController : Controller
         }
         catch (Exception ex)
         {
-            TempData["ErrorMessage"] = ex.Message;
+            var msg = ex.InnerException?.Message ?? ex.Message;
+            TempData["ErrorMessage"] = msg;
             return View(new BookListViewModel());
         }
     }
@@ -72,7 +73,8 @@ public class BookController : Controller
         }
         catch (Exception ex)
         {
-            TempData["ErrorMessage"] = ex.Message;
+            var msg = ex.InnerException?.Message ?? ex.Message;
+            TempData["ErrorMessage"] = msg;
             return RedirectToAction(nameof(Index));
         }
     }
@@ -96,7 +98,7 @@ public class BookController : Controller
         }
         catch (Exception ex)
         {
-            ModelState.AddModelError("", ex.Message);
+            ModelState.AddModelError("", ex.InnerException?.Message ?? ex.Message);
             return View(model);
         }
     }
@@ -121,7 +123,7 @@ public class BookController : Controller
         }
         catch (Exception ex)
         {
-            TempData["ErrorMessage"] = ex.Message;
+            TempData["ErrorMessage"] = ex.InnerException?.Message ?? ex.Message;
             return RedirectToAction(nameof(Index));
         }
     }
@@ -149,7 +151,7 @@ public class BookController : Controller
         }
         catch (Exception ex)
         {
-            ModelState.AddModelError("", ex.Message);
+            ModelState.AddModelError("", ex.InnerException?.Message ?? ex.Message);
             return View(model);
         }
     }
@@ -165,7 +167,7 @@ public class BookController : Controller
         }
         catch (Exception ex)
         {
-            TempData["ErrorMessage"] = ex.Message;
+            TempData["ErrorMessage"] = ex.InnerException?.Message ?? ex.Message;
         }
         return RedirectToAction(nameof(Index));
     }
@@ -181,7 +183,7 @@ public class BookController : Controller
         }
         catch (Exception ex)
         {
-            TempData["ErrorMessage"] = ex.Message;
+            TempData["ErrorMessage"] = ex.InnerException?.Message ?? ex.Message;
         }
         return RedirectToAction(nameof(Detail), new { id = bookId });
     }
