@@ -33,14 +33,65 @@ public class DashboardService
             overallPercent = Math.Round(totalPercent / totalBooksAdded, 2);
         }
 
+        var totalPagesRead = progresses
+            .Sum(rp => rp.Status == "Completed" ? rp.Book.TotalPages : rp.CurrentPage);
+
+        var achievementFirstBook = completedBooks >= 1;
+        var achievementFiveBooks = completedBooks >= 5;
+        var achievementSevenDays = HasSevenConsecutiveDays(progresses);
+        var achievementThousandPages = totalPagesRead >= 1000;
+
+        var badge = completedBooks switch
+        {
+            >= 10 => "🥇 Book Master",
+            >= 5  => "🥈 Active Reader",
+            >= 1  => "🥉 Beginner Reader",
+            _     => ""
+        };
+
         return new GetUserDashboardResponse
         {
             TotalBooksAdded = totalBooksAdded,
             CurrentlyReading = currentlyReading,
             CompletedBooks = completedBooks,
             NotStarted = notStarted,
-            OverallProgressPercent = overallPercent
+            OverallProgressPercent = overallPercent,
+            TotalPagesRead = totalPagesRead,
+            AchievementFirstBook = achievementFirstBook,
+            AchievementFiveBooks = achievementFiveBooks,
+            AchievementSevenDays = achievementSevenDays,
+            AchievementThousandPages = achievementThousandPages,
+            Badge = badge
         };
+    }
+
+    private static bool HasSevenConsecutiveDays(List<Database.AppDbContextModels.ReadingProgress> progresses)
+    {
+        var distinctDates = progresses
+            .Select(rp => rp.CreatedDate.Date)
+            .Distinct()
+            .OrderBy(d => d)
+            .ToList();
+
+        if (distinctDates.Count < 7)
+            return false;
+
+        var consecutive = 1;
+        for (var i = 1; i < distinctDates.Count; i++)
+        {
+            if ((distinctDates[i] - distinctDates[i - 1]).Days == 1)
+            {
+                consecutive++;
+                if (consecutive >= 7)
+                    return true;
+            }
+            else
+            {
+                consecutive = 1;
+            }
+        }
+
+        return false;
     }
 
     public async Task<GetAdminDashboardResponse> GetAdminDashboardAsync()
